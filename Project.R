@@ -547,6 +547,8 @@ imp.sort
 #============================================================================================================
 #Random Forest Model to predict the NGDP
 
+summary(minmax_norm_ua_train)
+
 rfs <- randomForest(minmax_norm_ua_train$ngdp ~ RemRec +
                       RealInterestRate + TravelServicesImports +
                       bond_10yr + gov_deficit + TotalDomesticCompanies ,            
@@ -555,11 +557,43 @@ rfs <- randomForest(minmax_norm_ua_train$ngdp ~ RemRec +
                     mtry = 6, 
                     importance = TRUE)
 rfs
-rf_pred_tr <- predict(rfs, raw_train_uni)
 rf_pred_tr <- predict(rfs, raw_valid_uni)
 rf_pred_tr
 
 plot(rfs)
+
+library(caret)
+library(randomForest)
+
+#===========================================================================================================
+#Random Forest Model ----HIGH ACCURATE OUTPUT --BUT with RAW data in few variables
+
+raw_train_tmp <- raw_train
+
+#normalize 3 variables
+lp_norm <- dnorm(raw_train_tmp$lab_prod, mean(raw_train_tmp$lab_prod), 
+                 sd(raw_train_tmp$lab_prod))
+lp_norm
+ri_norm <- dnorm(raw_train_tmp$RealInterestRate, mean(raw_train_tmp$RealInterestRate),
+                 sd(raw_train_tmp$RealInterestRate))
+ri_norm
+rp_norm <- dnorm(raw_train_tmp$RemPaid, mean(raw_train_tmp$RemPaid),
+                 sd(raw_train_tmp$RemPaid))
+rp_norm
+
+raw_train_tmp$RealInterestRate <- ri_norm
+raw_train_tmp$lab_prod <- lp_norm
+raw_train_tmp$RemPaid <- rp_norm
+
+rf_ <- randomForest(ngdp ~ tval+RealInterestRate+
+                     inflation+RailwaysPass+lab_prod+gov_deficit+
+                      housing_mkt+bond_10yr+RemPaid+RemRec,
+                   data = raw_train_tmp,
+                   ntree = 1000,
+                   importance = TRUE)
+rf_
+rf_pred_ <- predict(rf_, newdata= raw_valid[-2])
+rf_pred_
 
 #========================================================================================================
 #Elastic Net Regression Model 
