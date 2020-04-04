@@ -595,6 +595,21 @@ rf_
 rf_pred_ <- predict(rf_, newdata= raw_valid[-2])
 rf_pred_
 
+#=======================================================================================================
+# SVM MODELLING  
+
+svm_tune <- tune(svm, train.x=x, train.y=y, 
+                 kernel="radial", ranges=list(cost=10^(-1:2), gamma=c(.5,1,2)))
+print(svm_tune)
+# Best model determined by CV
+gamma.best <- 1e-5; cost.best <- 1e+4; epsilon.best <- 0.01
+
+svm_model <- svm(ngdp ~., data = raw_train_uni,type = "eps-regression",kernel = "radial",
+                 cost = cost.best, gamma = gamma.best, epsilon = epsilon.best)
+
+pred <- predict(svm_model,raw_valid_uni)
+pred
+
 #========================================================================================================
 #Elastic Net Regression Model 
 #This is on the raw dataset(without highly correlated variables) as scaling is done the the train fucntion
@@ -620,7 +635,6 @@ pred_test_elr
 
 #========================================================================================================
 #KNN Prediction --Bad Accuracy -- Cannot be used in this case as it will just give the nearest value
-#========================================================================================================
 
 trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
 knn_fit <- train(Nominal_GDP ~ Remittance_Paid + Remittance_Recv + Inflation + Consumption +Investment
@@ -635,22 +649,8 @@ train_df$Nominal_GDP
 knn_pred_tr
 knn_pred_ts
 
-#=======================================================================================================
-# SVM MODELLING  --Class based so wont work
-#=======================================================================================================
-svm_tune <- tune(svm, train.x=x, train.y=y, 
-                 kernel="radial", ranges=list(cost=10^(-1:2), gamma=c(.5,1,2)))
-print(svm_tune)
+trainSparse <- sparse.model.matrix(~., data = train[,predictorNames])[,-1]
+testSparse <- sparse.model.matrix(~., data = test[,predictorNames])[,-1]
 
 
-svm_model <- svm(ngdp ~., data = raw_train_uni)
-svm_model_tuned <- svm(ngdp ~ ., data = raw_train_uni, cost = 100, gamma=1)
-svm_model_linear = svm(ngdp ~ ., data = raw_train_uni, kernel = "linear", cost = 10, scale = FALSE)
 
-pred <- predict(svm_model,raw_valid_uni)
-pred_tuned <- predict(svm_model_tuned,raw_valid_uni)
-pred_linear <-predict(svm_model_linear,raw_valid_uni)
-
-pred
-pred_tuned
-pred_linear
