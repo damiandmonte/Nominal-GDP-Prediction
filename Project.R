@@ -413,7 +413,7 @@ minmax_norm_train <- minmax_norm[1:8,]
 minmax_norm_test <- minmax_norm[9:10,] 
 
 #=================================================================================
-#Univariate Analysis
+#Analysis
 
 colnames(minmax_norm)
 
@@ -456,9 +456,20 @@ raw_valid_uni <- raw_df[9:10,]
 
 colnames(raw_train_uni)
 tngdp <- raw_train_uni$ngdp
+
+# apply PCA - scale. = TRUE is highly
 pca_2 = prcomp(raw_train_uni[,-1:-2],scale. = T)
+
+# print method
+print(pca_2)
+
+# plot method
+plot(pca_2, type = "l")
+
+# summary method
 summary(pca_2)
 
+# loadings
 loadings_2 <- as.data.frame(pca_2$x)
 Matrix_2 <- pca_2$rotation
 
@@ -488,6 +499,7 @@ summary(lin_mod_uni)
 predict_uni <- predict(lin_mod_uni,pca_test3)
 predict_uni
 
+
 #========================================================================================================
 # LINEAR REGRESSION MODEL - With 10 fold Cross Validation
 
@@ -498,7 +510,32 @@ lin_mod_cv <- lm(tngdp ~ PC1 + PC2 + PC4 + PC6 + PC7,data=pca_train4,trControl=t
 summary(lin_mod_cv)
 
 predict_cv <- predict(lin_mod_cv,pca_test3)
-predict_cv  #Exact Same Results
+predict_cv  #Exact Same Results as linear
+
+# Function that returns Root Mean Squared Error
+rmse <- function(error)
+{
+  sqrt(mean(error^2))
+}
+
+# Function that returns Mean Absolute Error
+mae <- function(error)
+{
+  mean(abs(error))
+}
+
+# Calculate error
+error <- raw_valid_uni$ngdp - predict_cv
+
+# Example of invocation of functions
+rmse(error)
+mae(error)
+
+accuracy_each <- 100 - ((abs(raw_valid_uni$ngdp - predict_cv) / abs(raw_valid_uni$ngdp)) * 100)
+accuracy_each
+accuracy <- 100 - mean((abs(raw_valid_uni$ngdp - predict_cv) / abs(raw_valid_uni$ngdp)) * 100)
+accuracy
+
 
 #==============================================================================================================
 #Feature Selection using Random Forest
@@ -549,6 +586,7 @@ imp.sort
 
 summary(minmax_norm_ua_train)
 
+# Train a Random Forest
 rfs <- randomForest(minmax_norm_ua_train$ngdp ~ RemRec +
                       RealInterestRate + TravelServicesImports +
                       bond_10yr + gov_deficit + TotalDomesticCompanies ,            
@@ -556,21 +594,34 @@ rfs <- randomForest(minmax_norm_ua_train$ngdp ~ RemRec +
                     ntree = 1000, 
                     mtry = 6, 
                     importance = TRUE)
-rfs
+
+# Print the model output                             
+print(rfs)
+
 rf_pred_tr <- predict(rfs, raw_valid_uni)
 rf_pred_tr
 
+# Plot the model trained in the previous exercise
 plot(rfs)
 
-library(caret)
-library(randomForest)
+# Calculate error
+error <- raw_valid_uni$ngdp - rf_pred_tr
+error
+# Example of invocation of functions
+rmse(error)
+mae(error)
+
+accuracy_each <- 100 - ((abs(raw_valid_uni$ngdp - rf_pred_tr) / abs(raw_valid_uni$ngdp)) * 100)
+accuracy_each
+accuracy <- 100 - mean((abs(raw_valid_uni$ngdp - rf_pred_tr) / abs(raw_valid_uni$ngdp)) * 100)
+accuracy
 
 #===========================================================================================================
 #Random Forest Model ----HIGH ACCURATE OUTPUT --BUT with RAW data in few variables
 
 raw_train_tmp <- raw_train
 
-#normalize 3 variables
+#normalize 3 variables 
 lp_norm <- dnorm(raw_train_tmp$lab_prod, mean(raw_train_tmp$lab_prod), 
                  sd(raw_train_tmp$lab_prod))
 lp_norm
@@ -595,18 +646,17 @@ rf_
 rf_pred_ <- predict(rf_, newdata= raw_valid[-2])
 rf_pred_
 
+
 #=======================================================================================================
 # SVM MODELLING  
 
-svm_tune <- tune(svm, train.x=x, train.y=y, 
-                 kernel="radial", ranges=list(cost=10^(-1:2), gamma=c(.5,1,2)))
-print(svm_tune)
 # Best model determined by CV
 gamma.best <- 1e-5; cost.best <- 1e+4; epsilon.best <- 0.01
 
 svm_model <- svm(ngdp ~., data = raw_train_uni,type = "eps-regression",kernel = "radial",
                  cost = cost.best, gamma = gamma.best, epsilon = epsilon.best)
 
+svm_model
 pred <- predict(svm_model,raw_valid_uni)
 pred
 
@@ -634,23 +684,3 @@ pred_test_elr <- predict(elastic_reg, raw_valid_uni)
 pred_test_elr
 
 #========================================================================================================
-#KNN Prediction --Bad Accuracy -- Cannot be used in this case as it will just give the nearest value
-
-trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
-knn_fit <- train(Nominal_GDP ~ Remittance_Paid + Remittance_Recv + Inflation + Consumption +Investment
-                          + Commodity_PI + Tax_Per_Income, data = train_df, method = "knn",
- trControl=trctrl,
- preProcess = c("center", "scale"),
- tuneLength = 10)
-
-knn_pred_tr <- predict(knn_fit, newdata = train_df)
-knn_pred_ts <- predict(knn_fit, newdata = test_df)
-train_df$Nominal_GDP
-knn_pred_tr
-knn_pred_ts
-
-trainSparse <- sparse.model.matrix(~., data = train[,predictorNames])[,-1]
-testSparse <- sparse.model.matrix(~., data = test[,predictorNames])[,-1]
-
-
-
