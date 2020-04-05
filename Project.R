@@ -47,59 +47,83 @@ my_data11 <- read_excel("labour productivity.xlsx")
 
 year <- c(2009,2010,2011,2012,2013,
           2014,2015,2016,2017,2018)
+#https://www.google.com/publicdata/explore?ds=d5bncppjof8f9_&met_y=ny_gdp_mktp_cd&idim=country:CAN:MEX:IND&hl=en&dl=en#!ctype=l&strail=false&bcs=d&nselm=h&met_y=ny_gdp_mktp_cd&scale_y=lin&ind_y=false&rdim=country&idim=country:CAN&ifdim=country&hl=en_US&dl=en&ind=false
 ngdp <- c(1.37,1.61,1.7886,1.8243,1.8426,
           1.7993,1.5596,1.5358,1.653,1.71)
+#https://databank.worldbank.org/reports.aspx?source=2&series=BX.GSR.GNFS.CD&country=CAN
 population <- c(33628895.0, 34004889.0, 34339328.0, 34714222.0, 35082954.0,
                 35437435.0, 35702908.0, 36109487.0, 36540268.0, 37058856.0)
+#https://data.worldbank.org/indicator/FR.INR.RINR?locations=CA
 RealInterestRate<- c(4.8,-0.3,-0.1,1.8,1.2,
                      1.0,3.7,1.9,0.13,2.219)
+#https://tradingeconomics.com/canada/travel-services-percent-of-service-imports-bop-wb-data.html
 TravelServicesImports<- c(29.1,30.5,31.1,31.3,31.1,
                           31.0,29.9,28.7,29.4,29.8)
+#https://data.worldbank.org/indicator/CM.MKT.LDOM.NO?locations=CA
 TotalDomesticCompanies<- c(3727,3771,3980,4030,3810,
                            3948,3799,3368,3278,3330)
+#https://data.worldbank.org/indicator/SM.POP.REFG.OR?locations=CA&view=chart
 RefPop<-c(99,90,109,123,99,
           95,80,84,75,84)
+#https://data.worldbank.org/indicator/BX.TRF.PWKR.CD.DT
 RemRec<-c(1196444724.41024,1199157750.27888, 1227344978.04621, 1254600489.98476, 1336538605.70778,
           1351304689.29191, 1274255368.12748, 1289324860.09108,1326198147.54178, 1351563682.71848)
+#https://data.worldbank.org/indicator/BM.TRF.PWKR.CD.DT
 RemPaid<-c(4662098288.9915, 5290453957.41713, 5557756827.74173, 5629382995.17341, 5702499908.42515,
            5948213016.80636, 5114157603.63363, 5255722464.64191,6480421657.83641, 6629192670.76703)
+#https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=2310005701
 RailwaysPass<-c(1372.3,1346.3,1356.7,1341.8,1330.5,
                 1300,1322.4,1380.87,1535, 1596.59)
+#https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=2310025301
 AirPass<-c(52583516,63277409.3753385,66078011.9547392,70467400.7928687,71526725.918431,
            75528607,80228302,85406425,91404001, 89380000)
 IntAirPass<-c(1198381,1234528.61925597,1245743.61579713,1280198.18557714,1263297.33686341,
               1290419,1322033,1359442,1443818,1475062.58618088)
+#https://www.statista.com/statistics/412804/euro-to-canadian-dollar-average-annual-exchange-rate/ 
 eur_cad <- c(1.59,1.37,1.38,1.28,1.37,
              1.47,1.42,1.47,1.464915,1.53054)
+#https://www.ofx.com/en-ca/forex-news/historical-exchange-rates/ 
 usd_cad <- c(1.141433,1.030533,0.989323,0.999997,1.030084,
              1.104347,1.279163,1.325521,1.297846,1.296654)
+#https://tradingeconomics.com/canada/ease-of-doing-business
 eob <- c(8,12,13,17,19,
          13,20,22,18,22)  #Ease of Business
+#https://www.statista.com/statistics/271247/inflation-rate-in-canada/
 inflation <- c(0.3,1.78,2.91,1.52,0.94,
                1.91,1.13,1.43,1.6,2.24)
+#https://www.bankofcanada.ca/rates/price-indexes/bcpi/
 cpi <- c(461.54,560.17,658.76,620.66,618.71,
          605.86,386.72,351.74,130.4,133.4)  #commodity Price Index
+#https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1810000501
 cupi <- c(114.4,116.5,119.9,121.7,122.8,
           125.2,126.6,128.4,130.8,133.4) #consumer price index
+#https://data.oecd.org/tax/tax-on-personal-income.htm
 tpi <- c(2.04,12.04,12.15,12.30,12.86,
          12.97,12.62,12.14,12.10,12.11) #Tax on personal income
+#https://data.oecd.org/gga/general-government-deficit.htm
 gov_deficit <- c(-3.88,-4.74,-3.31,-2.52,-1.49,
                  0.17,-0.06,-0.45,-0.13,-0.40)
+#https://data.oecd.org/tax/tax-revenue.htm#indicator-chart
 trev <- c(32.35,31.01,30.80,31.18,31.13,
           31.27,32.82,33.17,32.81,32.99) #Tax Revenue
+#https://www150.statcan.gc.ca/n1/daily-quotidien/170913/dq170913a-eng.htm
 income_growth <- c(-5.86,5.46,4.55,1.27,2.66,
                    1.99,-1.58,0.85,2.6,0)
+#https://www150.statcan.gc.ca/n1/en/subjects/travel_and_tourism
 tourist <- c(15737,16219,16014,16344,16059,
             16537,17971,19971,20883,21134)
 #https://data.worldbank.org/indicator/ST.INT.ARVL?locations=CA
-
+#https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028703
 unemployment <- c(8.3,8.1,7.5,7.3,7.1,
                   6.9,6.9,7,6.3,5.8)
+#https://www.statcan.gc.ca/eng/subjects-start/housing
 housing_mkt<- c(10756375,11146943,11519574,11715862,11994309,
                 12356841,12443428,12565782,12471449,12000105)
+#https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610020801
 lab_prod<-c(53.8,54.6,55.6,55.8,56.7,
             58.1,58.1,58.3,59.58,59.58)
 
+#https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1010012401 
 df_all_stock_2006 <- df_all_stock %>% 
   filter(grepl( "Toronto Stock Exchange, value of shares traded",Stock.market.statistics),
          grepl( "2006-",ï..REF_DATE)) 
@@ -238,6 +262,7 @@ tvol <- c(tvol_2009,
           tvol_2017,
           tvol_2018)
 
+#https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1010013901
 colnames(df_bond_rates)
 df_bond <- df_bond_rates %>% 
   filter(grepl( "Selected Government of Canada benchmark bond yields: 10 years",Rates),
@@ -649,7 +674,7 @@ rf_pred_
 
 error <- raw_valid_uni$ngdp - rf_pred_
 error
-# Example of invocation of functions
+# Invocation of functions
 rmse(error)
 mae(error)
 
@@ -661,15 +686,33 @@ accuracy
 #=======================================================================================================
 # SVM MODELLING  
 
+#svm_tune <- tune(svm, train.x=raw_train_uni, train.y=raw_valid_uni, 
+#                 kernel="radial", ranges=list(cost=10^(-1:2), gamma=c(.5,1,2)))
+#print(svm_tune)
+
 # Best model determined by CV
 gamma.best <- 1e-5; cost.best <- 1e+4; epsilon.best <- 0.01
 
 svm_model <- svm(ngdp ~., data = raw_train_uni,type = "eps-regression",kernel = "radial",
                  cost = cost.best, gamma = gamma.best, epsilon = epsilon.best)
 
-svm_model
+print(svm_model)
 pred <- predict(svm_model,raw_valid_uni)
 pred
+
+table(pred,raw_valid_uni$ngdp)
+
+error <- raw_valid_uni$ngdp - pred
+error
+# Invocation of functions
+rmse(error)
+mae(error)
+
+accuracy_each <- 100 - ((abs(raw_valid_uni$ngdp - pred) / abs(raw_valid$ngdp)) * 100)
+accuracy_each
+accuracy <- 100 - mean((abs(raw_valid_uni$ngdp - pred) / abs(raw_valid$ngdp)) * 100)
+accuracy
+
 
 #========================================================================================================
 #Elastic Net Regression Model 
@@ -678,20 +721,38 @@ pred
 train_cont_elr <- trainControl(method = "repeatedcv",
                            number = 10,
                            repeats = 5,
-                          #search = "random",
                            verboseIter = TRUE)
+
+x <- model.matrix(ngdp~., raw_train_uni)[,-1:-2]
+y <- raw_train_uni$ngdp
+
 
 # Train the model
 elastic_reg <- train(ngdp ~  .,
                      data = raw_train_uni,
                      method = "glmnet",
                      preProcess = c("center", "scale"),
-                     tuneLength = 5,
+                     tuneLength = 10,
                      trControl = train_cont_elr)
 
 summary(elastic_reg)
+
 elastic_reg$bestTune
+
+coef(elastic_reg$finalModel, model$bestTune$lambda)
+
 pred_test_elr <- predict(elastic_reg, raw_valid_uni)
 pred_test_elr
+
+error <- raw_valid_uni$ngdp - pred_test_elr
+error
+# Invocation of functions
+rmse(error)
+mae(error)
+
+accuracy_each <- 100 - ((abs(raw_valid_uni$ngdp - pred_test_elr) / abs(raw_valid$ngdp)) * 100)
+accuracy_each
+accuracy <- 100 - mean((abs(raw_valid_uni$ngdp - pred_test_elr) / abs(raw_valid$ngdp)) * 100)
+accuracy
 
 #========================================================================================================
