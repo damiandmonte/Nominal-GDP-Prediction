@@ -642,10 +642,21 @@ rf_ <- randomForest(ngdp ~ tval+RealInterestRate+
                    data = raw_train_tmp,
                    ntree = 1000,
                    importance = TRUE)
-rf_
+print(rf_)
+plot(rf_)
 rf_pred_ <- predict(rf_, newdata= raw_valid[-2])
 rf_pred_
 
+error <- raw_valid_uni$ngdp - rf_pred_
+error
+# Example of invocation of functions
+rmse(error)
+mae(error)
+
+accuracy_each <- 100 - ((abs(raw_valid_uni$ngdp - rf_pred_) / abs(raw_valid$ngdp)) * 100)
+accuracy_each
+accuracy <- 100 - mean((abs(raw_valid_uni$ngdp - rf_pred_) / abs(raw_valid$ngdp)) * 100)
+accuracy
 
 #=======================================================================================================
 # SVM MODELLING  
