@@ -13,6 +13,10 @@
 # install.packages("randomForest")
 # install.packages ("BBmisc")
 # install.packages ("tidyr")
+# install.packages("factoextra")
+# install.packages("PerformanceAnalytics")
+# install.packages("corrplot")
+
 library(plyr)
 library(ggplot2)
 library(lattice)
@@ -33,9 +37,12 @@ library(ggpubr)
 library("randomForest")
 library("BBmisc")
 library(e1071)
+library(factoextra)
+library("PerformanceAnalytics")
+library(corrplot)
 
-setwd("F:/MCS/Data Analytics/Project/")
-getwd()
+#setwd("F:/MCS/Data Analytics/Project/")
+#getwd()
 
 EDA_DF_val <- data.frame(year, ngdp)
 df_all_stock <- read.csv("Stock_Market_Data.csv")
@@ -124,6 +131,7 @@ lab_prod<-c(53.8,54.6,55.6,55.8,56.7,
             58.1,58.1,58.3,59.58,59.58)
 
 #https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1010012401 
+#select the value of shares traded in the respective year and sum them
 df_all_stock_2006 <- df_all_stock %>% 
   filter(grepl( "Toronto Stock Exchange, value of shares traded",Stock.market.statistics),
          grepl( "2006-",ï..REF_DATE)) 
@@ -185,10 +193,12 @@ df_all_stock_2017 <- df_all_stock %>%
 tval_2017 <- sum(df_all_stock_2017$VALUE)
 
 tval_2018 <- 1665138 
-  
+
+# create a column of all the summed values  
 tval <- c(tval_2009,tval_2010,tval_2011,tval_2012,tval_2013,tval_2014,tval_2015,
           tval_2016,tval_2017,tval_2018)
 
+#select the volume of shares traded in the respective year and sum them
 df_all_stock_v2006 <- df_all_stock %>% 
   filter(grepl( "Toronto Stock Exchange, volume of shares traded",Stock.market.statistics),
          grepl( "2006-",ï..REF_DATE)) 
@@ -251,6 +261,7 @@ tvol_2017 <- sum(df_all_stock_v2017$VALUE)
 
 tvol_2018 <-87861.5 
 
+#create a column of all the values
 tvol <- c(tvol_2009,
           tvol_2010,
           tvol_2011,
@@ -263,12 +274,14 @@ tvol <- c(tvol_2009,
           tvol_2018)
 
 #https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1010013901
+#select the bond data from year 2009 to 2018
 colnames(df_bond_rates)
 df_bond <- df_bond_rates %>% 
   filter(grepl( "Selected Government of Canada benchmark bond yields: 10 years",Rates),
          grepl( "2009-|2010-|2011-|2012-|2013-|2014-|2015-|2016-|2017-|2018-",ï..REF_DATE)) 
 df_bond
 
+# For each year select values of all 12 months and find average of those values.
 df_bond_2009 <- df_bond %>% filter(grepl("2009",ï..REF_DATE)) 
 df_bond_2009 <- sum(df_bond_2009$VALUE) 
 bon_val_2009 <- (df_bond_2009/12)
@@ -310,7 +323,7 @@ df_bond_2018 <- df_bond %>% filter(grepl("2018",ï..REF_DATE))
 df_bond_2018 <- sum(df_bond_2018$VALUE) 
 bon_val_2018 <- (df_bond_2018/12)
 
-
+#create a column of the average bond value of each year. 
 bond_10yr <- c(bon_val_2009, bon_val_2010, bon_val_2011, bon_val_2012,
                bon_val_2013, bon_val_2014,bon_val_2015,bon_val_2016,bon_val_2017,bon_val_2018)
 bond_10yr
@@ -319,14 +332,17 @@ bond_10yr
 #DATAFRAME WITH ALL VARIABLES
 #=======================================================================================================
 
+#Create a RAW datafrrame
 raw_df <- data.frame(year,ngdp,population,RealInterestRate,TotalDomesticCompanies,
                      TravelServicesImports,RefPop,RemRec,RemPaid,RailwaysPass,AirPass,
                      IntAirPass,tval, tvol,bond_10yr,eur_cad, usd_cad,eob, inflation,
                      cupi,cpi,gov_deficit,trev, income_growth,tourist,unemployment,
                      housing_mkt,lab_prod)
 
+#Create a training set
 raw_train = raw_df[1:8,]
 
+#create a validtion set
 raw_valid = raw_df[9:10,]
 
 #====================================================================================================
@@ -334,7 +350,6 @@ raw_valid = raw_df[9:10,]
 
 mydata<-raw_df
 kk<-Map(function(x)cbind(shapiro.test(x)$statistic,shapiro.test(x)$p.value),mydata)
-library(plyr)
 myout<-ldply(kk)
 names(myout)<-c("var","W","p.value")
 myout
@@ -366,37 +381,34 @@ minmax_norm <- as.data.frame(lapply(raw_df, normal_distrbution))
 #==================================================================================================
 #Plotting Histograms
 
-hist(minmax_norm$ngdp)
-hist(minmax_norm$population)
-hist(minmax_norm$RealInterestRate)
-hist(minmax_norm$TotalDomesticCompanies)
-hist(minmax_norm$TravelServicesImports)
-hist(minmax_norm$EnergyUse)
-hist(minmax_norm$AgrLand)
-hist(minmax_norm$RefPop)
-hist(minmax_norm$RemRec)
-hist(minmax_norm$RemPaid)
-hist(minmax_norm$RailwaysPass)
-hist(minmax_norm$AirPass)
-hist(minmax_norm$IntAirPass)
-hist(minmax_norm$tval)
-hist(minmax_norm$tvol)
-hist(minmax_norm$bond_10yr)
-hist(minmax_norm$eur_cad)
-hist(minmax_norm$usd_cad)
-hist(minmax_norm$lab_prod)
-hist(minmax_norm$eob)
-hist(minmax_norm$inflation)
-hist(minmax_norm$cupi)
-hist(minmax_norm$cpi)
-hist(minmax_norm$gov_deficit)
-hist(minmax_norm$trev)
-hist(minmax_norm$income_growth)
-hist(minmax_norm$tourist)
-hist(minmax_norm$unemployment)
-hist(minmax_norm$housing_mkt)
-hist(minmax_norm$lab_prod)
-
+hist(minmax_norm$ngdp,col="darkmagenta")
+hist(minmax_norm$population,col="darkmagenta")
+hist(minmax_norm$RealInterestRate,col="darkmagenta")
+hist(minmax_norm$TotalDomesticCompanies,col="darkmagenta")
+hist(minmax_norm$TravelServicesImports,col="darkmagenta")
+hist(minmax_norm$RefPop,col="darkmagenta")
+hist(minmax_norm$RemRec,col="darkmagenta")
+hist(minmax_norm$RemPaid,col="darkmagenta")
+hist(minmax_norm$RailwaysPass,col="darkmagenta")
+hist(minmax_norm$AirPass,col="darkmagenta")
+hist(minmax_norm$IntAirPass,col="darkmagenta")
+hist(minmax_norm$tval,col="darkmagenta")
+hist(minmax_norm$tvol,col="darkmagenta")
+hist(minmax_norm$bond_10yr,col="darkmagenta")
+hist(minmax_norm$eur_cad,col="darkmagenta")
+hist(minmax_norm$usd_cad,col="darkmagenta")
+hist(minmax_norm$lab_prod,col="darkmagenta")
+hist(minmax_norm$eob,col="darkmagenta")
+hist(minmax_norm$inflation,col="darkmagenta")
+hist(minmax_norm$cupi,col="darkmagenta")
+hist(minmax_norm$cpi,col="darkmagenta")
+hist(minmax_norm$gov_deficit,col="darkmagenta")
+hist(minmax_norm$trev,col="darkmagenta")
+hist(minmax_norm$income_growth,col="darkmagenta")
+hist(minmax_norm$tourist,col="darkmagenta")
+hist(minmax_norm$unemployment,col="darkmagenta")
+hist(minmax_norm$housing_mkt,col="darkmagenta")
+hist(minmax_norm$lab_prod,col="darkmagenta")
 #======================================================================================
 #Plotting the features
 
@@ -442,10 +454,20 @@ minmax_norm_test <- minmax_norm[9:10,]
 
 colnames(minmax_norm)
 
+#Create a correlation Matrix
 x <- cor(minmax_norm)
+
+#print the Matrix
 print(x)
+
+#The function chart.Correlation()[ in the package PerformanceAnalytics], can be used to display a chart of a correlation matrix.
+my_data_ <- minmax_norm
+chart.Correlation(my_data_, histogram=TRUE, pch=19)
+
+#View Summary of the matrix
 summary(x[upper.tri(x)])
 
+#Using findCorrelation function to find the highly correlated variables
 highlyCor <- 
   findCorrelation(
     x,
@@ -462,7 +484,7 @@ minmax_norm_ua <- minmax_norm[ , !(names(minmax_norm) %in% highlyCor)]
 colnames(minmax_norm_ua)
 
 #===========================================================================================
-#Create Train and Test Data after Univariate analysis
+#Create Train and Test Data after analysis and removal of highly correlated variables
 
 minmax_norm_ua_train <- minmax_norm_ua[1:8,]
 minmax_norm_ua_test<- minmax_norm_ua[9:10,]
@@ -482,8 +504,25 @@ raw_valid_uni <- raw_df[9:10,]
 colnames(raw_train_uni)
 tngdp <- raw_train_uni$ngdp
 
+# Compute PCA
 # apply PCA - scale. = TRUE is highly
 pca_2 = prcomp(raw_train_uni[,-1:-2],scale. = T)
+
+#Visualize eigenvalues (scree plot). Show the percentage of variances explained by each principal component.
+fviz_eig(pca_2)
+
+#Graph of variables. Positive correlated variables point to the same side of the plot. 
+#Negative correlated variables point to opposite sides of the graph.
+fviz_pca_var(pca_2,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE     # Avoid text overlapping
+)
+#Biplot of years and variables
+fviz_pca_biplot(pca_2, repel = TRUE,
+                col.var = "#2E9FDF", # Variables color
+                col.ind = "#696969"  # Individuals color
+)
 
 # print method
 print(pca_2)
@@ -498,17 +537,21 @@ summary(pca_2)
 loadings_2 <- as.data.frame(pca_2$x)
 Matrix_2 <- pca_2$rotation
 
+#Standard Deviation
 std_dev <- pca_2$sdev
 pr_comp_var <- std_dev^2
 pr_comp_var
 
+#Find variances of each PCA
 prop_var_ex <- (pr_comp_var/sum(pr_comp_var))
 prop_var_ex
 
+#Select laodings and bind with ngdp
 loadings4 <- loadings_2[1:7]
 pca_train4 <- cbind(loadings4,tngdp)
 pca_train4
 
+#Create test PCA data
 pca_test <- raw_valid_uni[-1:-2]
 pca_test2 <- predict(pca_2, newdata = pca_test)
 pca_test2 <- as.data.frame(pca_test2)
@@ -521,9 +564,9 @@ pca_test4 <- cbind(pca_test3,Y_test)
 lin_mod_uni <- lm(tngdp ~ PC1 + PC2 + PC4 + PC6 + PC7,data=pca_train4)
 summary(lin_mod_uni)
 
+#predict using the test PCA
 predict_uni <- predict(lin_mod_uni,pca_test3)
 predict_uni
-
 
 #========================================================================================================
 # LINEAR REGRESSION MODEL - With 10 fold Cross Validation
@@ -556,8 +599,11 @@ error <- raw_valid_uni$ngdp - predict_cv
 rmse(error)
 mae(error)
 
+#Calculate individual year accuracy
 accuracy_each <- 100 - ((abs(raw_valid_uni$ngdp - predict_cv) / abs(raw_valid_uni$ngdp)) * 100)
 accuracy_each
+
+#calculate overall Accuracy
 accuracy <- 100 - mean((abs(raw_valid_uni$ngdp - predict_cv) / abs(raw_valid_uni$ngdp)) * 100)
 accuracy
 
@@ -578,7 +624,7 @@ rf <- randomForest(minmax_norm_ua_train$ngdp ~ .,
 imp = importance(rf, type=2, class=NULL,scale=TRUE)
 imp <- data.frame(predictors=rownames(imp),imp)
 
-# sort them 
+# sort them according to their importance
 imp.sort <- arrange(imp,desc(IncNodePurity))
 imp.sort$predictors <- factor(imp.sort$predictors,levels=imp.sort$predictors)
 imp.sort
@@ -623,6 +669,7 @@ rfs <- randomForest(minmax_norm_ua_train$ngdp ~ RemRec +
 # Print the model output                             
 print(rfs)
 
+#predict
 rf_pred_tr <- predict(rfs, raw_valid_uni)
 rf_pred_tr
 
@@ -632,18 +679,21 @@ plot(rfs)
 # Calculate error
 error <- raw_valid_uni$ngdp - rf_pred_tr
 error
-# Example of invocation of functions
+
+# Find RMSE and MAE
 rmse(error)
 mae(error)
 
+#calculate Accuracy
 accuracy_each <- 100 - ((abs(raw_valid_uni$ngdp - rf_pred_tr) / abs(raw_valid_uni$ngdp)) * 100)
 accuracy_each
+
+#calculate overall Accuracy
 accuracy <- 100 - mean((abs(raw_valid_uni$ngdp - rf_pred_tr) / abs(raw_valid_uni$ngdp)) * 100)
 accuracy
 
 #===========================================================================================================
 #Random Forest Model ----HIGH ACCURATE OUTPUT --BUT with RAW data in few variables
-
 raw_train_tmp <- raw_train
 
 #normalize 3 variables 
@@ -661,25 +711,36 @@ raw_train_tmp$RealInterestRate <- ri_norm
 raw_train_tmp$lab_prod <- lp_norm
 raw_train_tmp$RemPaid <- rp_norm
 
+#train the model
 rf_ <- randomForest(ngdp ~ tval+RealInterestRate+
                      inflation+RailwaysPass+lab_prod+gov_deficit+
                       housing_mkt+bond_10yr+RemPaid+RemRec,
                    data = raw_train_tmp,
                    ntree = 1000,
                    importance = TRUE)
+#print the model
 print(rf_)
+
+#plot the model
 plot(rf_)
+
+#predict using test set
 rf_pred_ <- predict(rf_, newdata= raw_valid[-2])
 rf_pred_
 
+#calculate the error
 error <- raw_valid_uni$ngdp - rf_pred_
 error
-# Invocation of functions
+
+# Find RMSE and MAE
 rmse(error)
 mae(error)
 
+#calculate Accuracy
 accuracy_each <- 100 - ((abs(raw_valid_uni$ngdp - rf_pred_) / abs(raw_valid$ngdp)) * 100)
 accuracy_each
+
+#calculate overall Accuracy
 accuracy <- 100 - mean((abs(raw_valid_uni$ngdp - rf_pred_) / abs(raw_valid$ngdp)) * 100)
 accuracy
 
@@ -693,26 +754,32 @@ accuracy
 # Best model determined by CV
 gamma.best <- 1e-5; cost.best <- 1e+4; epsilon.best <- 0.01
 
+#train the SVM model
 svm_model <- svm(ngdp ~., data = raw_train_uni,type = "eps-regression",kernel = "radial",
                  cost = cost.best, gamma = gamma.best, epsilon = epsilon.best)
 
+#print the statistics
 print(svm_model)
+
+#predict using test data
 pred <- predict(svm_model,raw_valid_uni)
 pred
 
-table(pred,raw_valid_uni$ngdp)
-
+#calculate the error
 error <- raw_valid_uni$ngdp - pred
 error
-# Invocation of functions
+
+# calculate the RMSE and MAE
 rmse(error)
 mae(error)
 
+#Calculate the Accuracy
 accuracy_each <- 100 - ((abs(raw_valid_uni$ngdp - pred) / abs(raw_valid$ngdp)) * 100)
 accuracy_each
+
+#calculate overall Accuracy
 accuracy <- 100 - mean((abs(raw_valid_uni$ngdp - pred) / abs(raw_valid$ngdp)) * 100)
 accuracy
-
 
 #========================================================================================================
 #Elastic Net Regression Model 
@@ -726,7 +793,6 @@ train_cont_elr <- trainControl(method = "repeatedcv",
 x <- model.matrix(ngdp~., raw_train_uni)[,-1:-2]
 y <- raw_train_uni$ngdp
 
-
 # Train the model
 elastic_reg <- train(ngdp ~  .,
                      data = raw_train_uni,
@@ -735,23 +801,32 @@ elastic_reg <- train(ngdp ~  .,
                      tuneLength = 10,
                      trControl = train_cont_elr)
 
+# Check the statistics
 summary(elastic_reg)
 
+# View the best tune
 elastic_reg$bestTune
 
-coef(elastic_reg$finalModel, model$bestTune$lambda)
+#View the co-efficents
+coef(elastic_reg$finalModel, elastic_reg$bestTune$lambda)
 
+#predict using test data
 pred_test_elr <- predict(elastic_reg, raw_valid_uni)
 pred_test_elr
 
+#calculate the error
 error <- raw_valid_uni$ngdp - pred_test_elr
 error
-# Invocation of functions
+
+# Calcuate the RMSE and MAE
 rmse(error)
 mae(error)
 
+#calculate Accuracy
 accuracy_each <- 100 - ((abs(raw_valid_uni$ngdp - pred_test_elr) / abs(raw_valid$ngdp)) * 100)
 accuracy_each
+
+#calculate overall Accuracy
 accuracy <- 100 - mean((abs(raw_valid_uni$ngdp - pred_test_elr) / abs(raw_valid$ngdp)) * 100)
 accuracy
 
